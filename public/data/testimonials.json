@@ -1,0 +1,44 @@
+{
+  "testimonials": [
+    {
+      "id": 1,
+      "name": "John Smith",
+      "avatar": "/images/avatars/avatar1.jpg",
+      "text": "I was amazed by the quality of service. The car leasing process was smooth and transparent. Highly recommend!",
+      "rating": 5,
+      "position": "Business Owner"
+    },
+    {
+      "id": 2,
+      "name": "Emily Johnson",
+      "avatar": "/images/avatars/avatar2.jpg",
+      "text": "Miles was incredibly helpful in finding the perfect car for my needs. The whole experience was stress-free.",
+      "rating": 5,
+      "position": "Marketing Director"
+    },
+    {
+      "id": 3,
+      "name": "Michael Chen",
+      "avatar": "/images/avatars/avatar3.jpg",
+      "text": "The team at CARS N QUOTES provided exceptional service. They found me a great deal on my dream car.",
+      "rating": 4,
+      "position": "Software Engineer"
+    },
+    {
+      "id": 4,
+      "name": "Sarah Williams",
+      "avatar": "/images/avatars/avatar4.jpg",
+      "text": "The leasing options were flexible and tailored to my budget. I'm very satisfied with my new vehicle.",
+      "rating": 5,
+      "position": "Financial Advisor"
+    },
+    {
+      "id": 5,
+      "name": "David Rodriguez",
+      "avatar": "/images/avatars/avatar5.jpg",
+      "text": "Professional service from start to finish. The team was knowledgeable and answered all my questions promptly.",
+      "rating": 4,
+      "position": "Restaurant Owner"
+    }
+  ]
+}

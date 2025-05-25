@@ -1,0 +1,29 @@
+{
+  "partners": [
+    {
+      "id": 1,
+      "name": "Mazda",
+      "logo": "/images/partners/mazda.png",
+      "website": "https://www.mazda.com"
+    },
+    {
+      "id": 2,
+      "name": "Kia",
+      "logo": "/images/partners/kia.png",
+      "website": "https://www.kia.com"
+    },
+    {
+      "id": 3,
+      "name": "Nissan",
+      "logo": "/images/partners/nissan.png",
+      "website": "https://www.nissan.com"
+    },
+    {
+      "id": 4,
+      "name": "Hyundai",
+      "logo": "/images/partners/hyundai.png",
+      "website": "https://www.hyundai.com"
+    }
+    
+  ]
+}
