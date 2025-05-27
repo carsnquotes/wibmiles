@@ -171,7 +171,7 @@ const Chat: React.FC = () => {
                             : 'bg-dark-secondary/20 border border-dark-border/20 shadow-sm shadow-dark-border/5'
                         } p-5 rounded-lg`}
                       >
-                        <p className="text-text-primary font-light">{message.text}</p>
+                        <p className="text-text-primary font-light whitespace-pre-wrap">{message.text}</p>
                         <div className="text-xs text-text-secondary mt-2 flex justify-end items-center">
                           {formatTime(message.timestamp)}
                         </div>
