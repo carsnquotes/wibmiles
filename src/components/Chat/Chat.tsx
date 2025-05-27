@@ -18,6 +18,7 @@ const Chat: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [userId, setUserId] = useState<string>('');
+  const [isMessageSending, setIsMessageSending] = useState(false); // Флаг для блокировки отправки сообщений
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatSectionRef = useRef<HTMLDivElement>(null);
@@ -34,6 +35,10 @@ const Chat: React.FC = () => {
     }
     setUserId(storedUserId);
     console.log('User ID:', storedUserId);
+    
+    // Отладочный вывод URL вебхука
+    console.log('Webhook URL:', WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
+    console.log('Environment variable:', import.meta.env.VITE_CHAT_WEBHOOK_URL);
   }, []);
 
   // Загрузка сохраненных сообщений или инициализация начального сообщения
@@ -99,7 +104,10 @@ const Chat: React.FC = () => {
   }, []);
 
   const handleSendMessage = async () => {
-    if (inputValue.trim()) {
+    // Проверяем, не отправляется ли уже сообщение и не печатает ли агент ответ
+    if (inputValue.trim() && !isMessageSending && !isTyping) {
+      // Устанавливаем флаг, что сообщение отправляется
+      setIsMessageSending(true);
       // Добавление сообщения пользователя
       const userMessage: Message = {
         id: messages.length + 1,
@@ -141,6 +149,8 @@ const Chat: React.FC = () => {
         };
         
         setMessages(prevMessages => [...prevMessages, systemMessage]);
+        // Сбрасываем флаг отправки сообщения
+        setIsMessageSending(false);
       } catch (error) {
         console.error('Error communicating with n8n:', error);
         setIsTyping(false);
@@ -154,6 +164,8 @@ const Chat: React.FC = () => {
         };
         
         setMessages(prevMessages => [...prevMessages, errorMessage]);
+        // Сбрасываем флаг отправки сообщения даже в случае ошибки
+        setIsMessageSending(false);
       }
     }
   };
@@ -262,10 +274,11 @@ const Chat: React.FC = () => {
                   className="w-full sm:flex-grow bg-dark-primary/40 text-text-primary py-3 sm:py-4 px-3 sm:px-5 border border-dark-border/20 rounded-md outline-none focus:border-accent-secondary/50 transition-colors text-sm sm:text-base"
                 />
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: isMessageSending || isTyping ? 1 : 1.05 }}
+                  whileTap={{ scale: isMessageSending || isTyping ? 1 : 0.95 }}
                   onClick={handleSendMessage}
-                  className="w-full sm:w-auto sm:ml-3 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 border border-accent-secondary/50 text-accent-secondary hover:bg-accent-secondary/10 px-4 sm:px-6 py-3 sm:py-4 rounded-md transition-colors font-light tracking-wider uppercase text-xs sm:text-sm"
+                  disabled={isMessageSending || isTyping}
+                  className={`w-full sm:w-auto sm:ml-3 bg-gradient-to-r from-accent-primary/20 to-accent-secondary/20 border border-accent-secondary/50 text-accent-secondary ${isMessageSending || isTyping ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent-secondary/10'} px-4 sm:px-6 py-3 sm:py-4 rounded-md transition-colors font-light tracking-wider uppercase text-xs sm:text-sm`}
                 >
                   {t('send')}
                 </motion.button>
