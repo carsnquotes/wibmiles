@@ -12,7 +12,6 @@
 
 # misc
 .DS_Store
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -26,4 +25,9 @@ yarn-error.log*
 /.vscode
 
 # Local environment variables
+.env.local
+
+# Mock server
+mock-server.js
+
 .env

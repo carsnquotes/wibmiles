@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { sendMessageToWebhook } from '../../services/api';
+import { WEBHOOK_CONFIG } from '../../config/webhooks';
+import { WebhookRequest, WebhookResponse } from '../../types/api';
 
 interface Message {
   id: number;
@@ -45,7 +48,7 @@ const Chat: React.FC = () => {
     inputRef.current?.focus();
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputValue.trim()) {
       // Добавление сообщения пользователя
       const userMessage: Message = {
@@ -61,18 +64,46 @@ const Chat: React.FC = () => {
       // Имитация набора текста оператором
       setIsTyping(true);
       
-      // Имитация ответа системы
-      setTimeout(() => {
+      try {
+        // Подготовка данных для отправки на вебхук
+        const webhookRequest: WebhookRequest = {
+          message: inputValue,
+          userId: 'user-' + Math.floor(Math.random() * 1000), // В реальном приложении здесь должен быть настоящий ID пользователя
+          timestamp: new Date().toISOString(),
+          language: language,
+          metadata: {
+            platform: navigator.platform,
+            userAgent: navigator.userAgent
+          }
+        };
+        
+        // Отправка сообщения на вебхук n8n
+        const response = await sendMessageToWebhook(webhookRequest, WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
+        
+        // Обработка ответа от n8n
         setIsTyping(false);
         const systemMessage: Message = {
           id: messages.length + 2,
-          text: t('auto_reply'),
+          text: response.reply || t('auto_reply'),
           sender: 'system',
           timestamp: new Date()
         };
         
         setMessages(prevMessages => [...prevMessages, systemMessage]);
-      }, 2000);
+      } catch (error) {
+        console.error('Error communicating with n8n:', error);
+        setIsTyping(false);
+        
+        // Показываем сообщение об ошибке
+        const errorMessage: Message = {
+          id: messages.length + 2,
+          text: t('error_message') || 'Извините, произошла ошибка при обработке вашего запроса.',
+          sender: 'system',
+          timestamp: new Date()
+        };
+        
+        setMessages(prevMessages => [...prevMessages, errorMessage]);
+      }
     }
   };
 
