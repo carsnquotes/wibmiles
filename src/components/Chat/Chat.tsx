@@ -32,7 +32,12 @@ const Chat: React.FC = () => {
 
   // Автоматическая прокрутка вниз при новых сообщениях
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current && chatSectionRef.current) {
+      const chatContainer = chatSectionRef.current.querySelector('.overflow-y-auto');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
   }, [messages]);
 
   // Фокус на поле ввода при загрузке
