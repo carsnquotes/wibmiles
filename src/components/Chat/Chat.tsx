@@ -17,21 +17,71 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [userId, setUserId] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatSectionRef = useRef<HTMLDivElement>(null);
-
-  // Инициализация начального сообщения при загрузке или смене языка
+  
+  // Инициализация userId при загрузке компонента
   useEffect(() => {
-    setMessages([
-      {
-        id: 1,
-        text: t('welcome'),
-        sender: 'system',
-        timestamp: new Date()
+    let storedUserId = localStorage.getItem('chatUserId');
+    if (!storedUserId) {
+      // Генерация ID только из цифр
+      const timestamp = Date.now();
+      const randomDigits = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+      storedUserId = timestamp.toString() + randomDigits;
+      localStorage.setItem('chatUserId', storedUserId);
+    }
+    setUserId(storedUserId);
+    console.log('User ID:', storedUserId);
+  }, []);
+
+  // Загрузка сохраненных сообщений или инициализация начального сообщения
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages);
+        // Преобразуем строковые даты обратно в объекты Date
+        const messagesWithDates = parsedMessages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+        setMessages(messagesWithDates);
+        console.log('Loaded saved messages:', messagesWithDates.length);
+      } catch (error) {
+        console.error('Ошибка при загрузке сохраненных сообщений:', error);
+        // Если произошла ошибка, показываем приветственное сообщение
+        setMessages([
+          {
+            id: 1,
+            text: t('welcome'),
+            sender: 'system',
+            timestamp: new Date()
+          }
+        ]);
       }
-    ]);
-  }, [language, t]);
+    } else {
+      // Если сохраненных сообщений нет, показываем приветственное сообщение
+      setMessages([
+        {
+          id: 1,
+          text: t('welcome'),
+          sender: 'system',
+          timestamp: new Date()
+        }
+      ]);
+    }
+  }, [t]);  // Зависимость от t, чтобы приветственное сообщение было на правильном языке
+  
+  // Сохранение сообщений в localStorage при их изменении
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+      console.log('Saved messages to localStorage:', messages.length);
+    }
+  }, [messages]);
 
   // Автоматическая прокрутка вниз при новых сообщениях
   useEffect(() => {
@@ -68,12 +118,13 @@ const Chat: React.FC = () => {
         // Подготовка данных для отправки на вебхук
         const webhookRequest: WebhookRequest = {
           message: inputValue,
-          userId: 'user-' + Math.floor(Math.random() * 1000), // В реальном приложении здесь должен быть настоящий ID пользователя
+          userId: userId, // Используем сохраненный уникальный идентификатор пользователя
           timestamp: new Date().toISOString(),
           language: language,
           metadata: {
             platform: navigator.platform,
-            userAgent: navigator.userAgent
+            userAgent: navigator.userAgent,
+            sessionStartTime: localStorage.getItem('chatSessionStart') || new Date().toISOString()
           }
         };
         
