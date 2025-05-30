@@ -4,7 +4,9 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { sendMessageToWebhook } from '../../services/api';
 import { WEBHOOK_CONFIG } from '../../config/webhooks';
 import { WebhookRequest, WebhookResponse } from '../../types/api';
-import { getRandomWaitingMessage, detectMessageLanguage, MessageLanguage } from '../../config/waitingMessages';
+import { getRandomWaitingMessage, getWaitingMessageByIndex, detectMessageLanguage, MessageLanguage } from '../../config/waitingMessages';
+import TypewriterText from './TypewriterText';
+import ProgressBar from './ProgressBar';
 
 interface Message {
   id: number;
@@ -22,6 +24,10 @@ const Chat: React.FC = () => {
   const [isMessageSending, setIsMessageSending] = useState(false); // Флаг для блокировки отправки сообщений
   const [waitingMessage, setWaitingMessage] = useState<string>(''); // Сообщение ожидания
   const [messageLanguage, setMessageLanguage] = useState<MessageLanguage>('ru'); // Язык последнего сообщения
+  const [waitingMessageIndex, setWaitingMessageIndex] = useState<number>(0); // Индекс текущего сообщения ожидания
+  const [waitingMessageOpacity, setWaitingMessageOpacity] = useState<number>(1); // Прозрачность сообщения для анимации
+  const [isTypingText, setIsTypingText] = useState<boolean>(false); // Флаг для эффекта печатания
+  const [isProgressActive, setIsProgressActive] = useState<boolean>(false); // Флаг активности прогресс-бара
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatSectionRef = useRef<HTMLDivElement>(null);
@@ -44,6 +50,47 @@ const Chat: React.FC = () => {
     console.log('Environment variable:', import.meta.env.VITE_CHAT_WEBHOOK_URL);
   }, []);
 
+  // Эффект для управления сменой сообщений ожидания
+  useEffect(() => {
+    if (isTyping) {
+      // Запускаем эффект печатания и прогресс-бар
+      setIsTypingText(true);
+      setIsProgressActive(true);
+    } else {
+      // Останавливаем анимации
+      setIsTypingText(false);
+      setIsProgressActive(false);
+    }
+  }, [isTyping]);
+  
+  // Обработчик завершения прогресс-бара
+  const handleProgressComplete = () => {
+    if (isTyping) {
+      // Меняем сообщение на следующее
+      const nextIndex = waitingMessageIndex + 1;
+      setWaitingMessageIndex(nextIndex);
+      setWaitingMessage(getWaitingMessageByIndex(nextIndex, messageLanguage));
+      
+      // Запускаем новый эффект печатания
+      setIsTypingText(true);
+      
+      // Перезапускаем прогресс-бар
+      setTimeout(() => {
+        setIsProgressActive(false);
+        setTimeout(() => {
+          if (isTyping) {
+            setIsProgressActive(true);
+          }
+        }, 100);
+      }, 100);
+    }
+  };
+  
+  // Обработчик завершения эффекта печатания
+  const handleTypingComplete = () => {
+    setIsTypingText(false);
+  };
+  
   // Загрузка сохраненных сообщений или инициализация начального сообщения
   useEffect(() => {
     const savedMessages = localStorage.getItem('chatMessages');
@@ -125,8 +172,14 @@ const Chat: React.FC = () => {
       const detectedLanguage = detectMessageLanguage(inputValue.trim());
       setMessageLanguage(detectedLanguage);
       
-      // Устанавливаем случайное сообщение ожидания на соответствующем языке
-      setWaitingMessage(getRandomWaitingMessage(detectedLanguage));
+      // Сбрасываем индекс сообщения ожидания
+      setWaitingMessageIndex(0);
+      
+      // Устанавливаем первое сообщение ожидания на соответствующем языке
+      setWaitingMessage(getWaitingMessageByIndex(0, detectedLanguage));
+      setWaitingMessageOpacity(1);
+      setIsTypingText(true);
+      setIsProgressActive(true);
       
       try {
         const requestData: WebhookRequest = {
@@ -255,18 +308,40 @@ const Chat: React.FC = () => {
                       <div className="max-w-[80%] bg-dark-secondary/20 border border-dark-border/20 shadow-sm p-5 rounded-lg">
                         {waitingMessage ? (
                           <div className="flex flex-col">
-                            <p className="text-text-primary font-light mb-2">{waitingMessage}</p>
-                            <div className="flex space-x-2">
-                              <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                              <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                              <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            <div className="text-text-primary font-light mb-2">
+                              {isTypingText ? (
+                                <TypewriterText 
+                                  text={waitingMessage} 
+                                  speed={80}
+                                  onComplete={handleTypingComplete}
+                                />
+                              ) : (
+                                <span>{waitingMessage}</span>
+                              )}
                             </div>
+                            
+                            {/* Индикатор прогресса */}
+                            <ProgressBar 
+                              duration={6000} 
+                              isActive={isProgressActive}
+                              onComplete={handleProgressComplete}
+                            />
+                            
+                            {/* Убираем три точки */}
                           </div>
                         ) : (
-                          <div className="flex space-x-2">
-                            <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          <div className="flex justify-center">
+                            <div className="w-20 h-1 bg-dark-border/20 rounded-full overflow-hidden">
+                              <motion.div 
+                                className="h-full bg-accent-secondary/50"
+                                animate={{ width: ["0%", "100%", "0%"] }}
+                                transition={{ 
+                                  repeat: Infinity, 
+                                  duration: 2,
+                                  ease: "easeInOut" 
+                                }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
