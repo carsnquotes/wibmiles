@@ -4,6 +4,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { sendMessageToWebhook } from '../../services/api';
 import { WEBHOOK_CONFIG } from '../../config/webhooks';
 import { WebhookRequest, WebhookResponse } from '../../types/api';
+import { getRandomWaitingMessage, detectMessageLanguage, MessageLanguage } from '../../config/waitingMessages';
 
 interface Message {
   id: number;
@@ -19,6 +20,8 @@ const Chat: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [userId, setUserId] = useState<string>('');
   const [isMessageSending, setIsMessageSending] = useState(false); // Флаг для блокировки отправки сообщений
+  const [waitingMessage, setWaitingMessage] = useState<string>(''); // Сообщение ожидания
+  const [messageLanguage, setMessageLanguage] = useState<MessageLanguage>('ru'); // Язык последнего сообщения
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatSectionRef = useRef<HTMLDivElement>(null);
@@ -104,68 +107,70 @@ const Chat: React.FC = () => {
   }, []);
 
   const handleSendMessage = async () => {
-    // Проверяем, не отправляется ли уже сообщение и не печатает ли агент ответ
     if (inputValue.trim() && !isMessageSending && !isTyping) {
-      // Устанавливаем флаг, что сообщение отправляется
       setIsMessageSending(true);
-      // Добавление сообщения пользователя
+      
       const userMessage: Message = {
-        id: messages.length + 1,
-        text: inputValue,
+        id: Date.now(),
+        text: inputValue.trim(),
         sender: 'user',
         timestamp: new Date()
       };
       
-      setMessages([...messages, userMessage]);
+      setMessages(prevMessages => [...prevMessages, userMessage]);
       setInputValue('');
-      
-      // Имитация набора текста оператором
       setIsTyping(true);
       
+      // Определяем язык сообщения пользователя
+      const detectedLanguage = detectMessageLanguage(inputValue.trim());
+      setMessageLanguage(detectedLanguage);
+      
+      // Устанавливаем случайное сообщение ожидания на соответствующем языке
+      setWaitingMessage(getRandomWaitingMessage(detectedLanguage));
+      
       try {
-        // Подготовка данных для отправки на вебхук
-        const webhookRequest: WebhookRequest = {
-          message: inputValue,
-          userId: userId, // Используем сохраненный уникальный идентификатор пользователя
-          timestamp: new Date().toISOString(),
-          language: language,
-          metadata: {
-            platform: navigator.platform,
-            userAgent: navigator.userAgent,
-            sessionStartTime: localStorage.getItem('chatSessionStart') || new Date().toISOString()
-          }
+        const requestData: WebhookRequest = {
+          message: userMessage.text,
+          userId: userId, 
+          timestamp: userMessage.timestamp.toISOString()
         };
         
-        // Отправка сообщения на вебхук n8n
-        const response = await sendMessageToWebhook(webhookRequest, WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
+        console.log('Sending to webhook:', requestData);
+        console.log('Webhook URL:', WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
         
-        // Обработка ответа от n8n
-        setIsTyping(false);
+        const response = await sendMessageToWebhook(requestData, WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
+        console.log('Webhook response:', response);
+        
         const systemMessage: Message = {
-          id: messages.length + 2,
-          text: response.reply || t('auto_reply'),
+          id: Date.now() + 1,
+          text: response.reply || t('error_response'),
           sender: 'system',
           timestamp: new Date()
         };
         
-        setMessages(prevMessages => [...prevMessages, systemMessage]);
-        // Сбрасываем флаг отправки сообщения
-        setIsMessageSending(false);
+        setTimeout(() => {
+          setMessages(prevMessages => [...prevMessages, systemMessage]);
+          setIsTyping(false);
+          setIsMessageSending(false);
+          setWaitingMessage(''); 
+        }, 1000); 
+        
       } catch (error) {
-        console.error('Error communicating with n8n:', error);
-        setIsTyping(false);
+        console.error('Error sending message:', error);
         
-        // Показываем сообщение об ошибке
         const errorMessage: Message = {
-          id: messages.length + 2,
-          text: t('error_message') || 'Извините, произошла ошибка при обработке вашего запроса.',
+          id: Date.now() + 1,
+          text: t('error_response'),
           sender: 'system',
           timestamp: new Date()
         };
         
-        setMessages(prevMessages => [...prevMessages, errorMessage]);
-        // Сбрасываем флаг отправки сообщения даже в случае ошибки
-        setIsMessageSending(false);
+        setTimeout(() => {
+          setMessages(prevMessages => [...prevMessages, errorMessage]);
+          setIsTyping(false);
+          setIsMessageSending(false);
+          setWaitingMessage(''); 
+        }, 1000);
       }
     }
   };
@@ -176,7 +181,6 @@ const Chat: React.FC = () => {
     }
   };
 
-  // Форматирование времени
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -249,11 +253,22 @@ const Chat: React.FC = () => {
                       className="flex justify-start"
                     >
                       <div className="max-w-[80%] bg-dark-secondary/20 border border-dark-border/20 shadow-sm p-5 rounded-lg">
-                        <div className="flex space-x-2">
-                          <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                          <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                          <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                        </div>
+                        {waitingMessage ? (
+                          <div className="flex flex-col">
+                            <p className="text-text-primary font-light mb-2">{waitingMessage}</p>
+                            <div className="flex space-x-2">
+                              <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                              <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                              <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex space-x-2">
+                            <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-2 h-2 bg-accent-secondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   )}
