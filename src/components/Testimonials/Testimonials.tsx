@@ -11,6 +11,13 @@ interface Testimonial {
 }
 
 const Testimonials: React.FC = () => {
+  // Временно скрываем компонент
+  const isHidden = true;
+  
+  // Если компонент скрыт, возвращаем null
+  if (isHidden) {
+    return null;
+  }
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);

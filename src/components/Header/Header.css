@@ -16,3 +16,32 @@
   transform: scale(1.05);
   box-shadow: 0 0 15px rgba(3, 218, 198, 0.5), 0 0 30px rgba(3, 218, 198, 0.3);
 }
+
+/* Стили для бегущей строки */
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 40s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-content p {
+  display: inline-block;
+  color: #ffffff;
+  font-weight: 500;
+}

@@ -167,13 +167,12 @@ const AppContent: React.FC = () => {
                   {/* Правая колонка с адресом */}
                   <div className="flex flex-col items-center md:items-end">
                     <div className="text-text-secondary text-sm mb-2">
-                      <p>123 Auto Plaza Drive</p>
-                      <p>Silicon Valley, CA 94043</p>
-                      <p>United States</p>
+                      <p>Hi Miles LLC</p>
+                      <p>8 The Green, Ste B</p>
+                      <p>Dover, DE 19901</p>
                     </div>
                     <div className="text-text-secondary text-sm">
-                      <p>Email: info@carsnquotes.com</p>
-                      <p>Phone: +1 (555) 123-4567</p>
+                      <p>Email: info@hi-miles.com</p>
                     </div>
                   </div>
                 </div>
@@ -182,7 +181,7 @@ const AppContent: React.FC = () => {
                 <div className="flex items-center space-x-3 justify-center mt-8 pt-4 border-t border-dark-border/10">
                   <div className="w-3 h-3 bg-accent-secondary rounded-full animate-pulse"></div>
                   <p className="text-text-secondary text-xs">
-                    © {new Date().getFullYear()} CARS N QUOTES. {t('all_rights_reserved')}.
+                    © {new Date().getFullYear()} Hi Miles LLC. {t('all_rights_reserved')}.
                   </p>
                 </div>
               </div>

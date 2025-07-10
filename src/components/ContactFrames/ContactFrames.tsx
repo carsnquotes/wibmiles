@@ -15,7 +15,7 @@ const ContactFrames: React.FC = () => {
           >
             <h3 className="text-lg sm:text-xl text-accent-primary font-medium mb-2 sm:mb-3">For Dealers</h3>
             <p className="text-text-secondary text-sm sm:text-base mb-4 sm:mb-6">
-              If you want to connect to our automated customer service system, request a callback.
+              Want your inventory featured on Miles? Fill out the form to get started.
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -35,7 +35,7 @@ const ContactFrames: React.FC = () => {
           >
             <h3 className="text-lg sm:text-xl text-accent-secondary font-medium mb-2 sm:mb-3">For Clients</h3>
             <p className="text-text-secondary text-sm sm:text-base mb-4 sm:mb-6">
-              If you want to become a referral or have any additional questions, please contact us.
+              Questions, feedback, or suggestions? We'd love to hear from you.
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}

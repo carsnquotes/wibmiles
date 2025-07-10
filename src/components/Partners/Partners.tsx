@@ -75,7 +75,7 @@ const Partners: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="text-2xl font-light text-center mb-2 text-text-primary"
         >
-          Our Partners
+          Our Brands
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -83,18 +83,15 @@ const Partners: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-center text-text-secondary mb-8"
         >
-          We work with the world's leading automotive brands
+          We work with the world's leading automotive brands - constantly expanding our lineup.
         </motion.p>
       </div>
       
       <div className="partners-scroll-container">
         <div className="partners-scroll">
           {duplicatedPartners.map((partner, index) => (
-            <motion.a
+            <motion.div
               key={`${partner.id}-${index}`}
-              href={partner.website}
-              target="_blank"
-              rel="noopener noreferrer"
               className="partner-item"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -111,7 +108,7 @@ const Partners: React.FC = () => {
                 />
               </div>
               <span className="partner-name">{partner.name}</span>
-            </motion.a>
+            </motion.div>
           ))}
         </div>
       </div>

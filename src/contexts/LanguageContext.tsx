@@ -43,7 +43,7 @@ const translations: Record<Language, Record<string, string>> = {
     // Chat
     'online_assistant': 'ONLINE ASSISTANT',
     'online_chat': 'Online Chat',
-    'welcome': 'I Miles Will answer any questions about car leasing',
+    'welcome': '👋 Hi, I\'m Miles!\nI\'m here to help you explore car lease and purchase options — with real quotes, discounts, and special offers.\nJust ask me anything to get started!',
     'typing_message': 'Type your message...',
     'send': 'Send',
     'auto_reply': 'Thank you for your message. Our specialists will contact you soon. If you have any additional questions, feel free to ask.',

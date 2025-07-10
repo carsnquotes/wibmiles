@@ -27,6 +27,13 @@ const Header: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-sm bg-dark-secondary/20 border-b border-dark-border/10">
+      <div className="w-full bg-accent-secondary/20 overflow-hidden">
+        <div className="marquee-container">
+          <div className="marquee-content">
+            <p className="text-sm py-1 whitespace-nowrap">🚧 This website and the Miles chatbot are currently in testing mode. Some features may be limited or in development. 🚧</p>
+          </div>
+        </div>
+      </div>
       <div className="container mx-auto flex items-center justify-between py-3 sm:py-4 md:py-5 px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -39,9 +46,9 @@ const Header: React.FC = () => {
             whileHover={{ scale: 1.02 }}
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter">
-              <span className="text-white">CARS N</span>
-              <span className="text-accent-secondary relative">
-                <span className="relative z-10">QUOTES</span>
+              <span className="text-accent-secondary">Hi</span>
+              <span className="text-white relative">
+                <span className="relative z-10">MILES</span>
                 <span className="absolute inset-0 bg-accent-secondary/10 blur-sm rounded-lg"></span>
               </span>
             </h1>
