@@ -1,14 +1,19 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Chat from './components/Chat/Chat';
 import Partners from './components/Partners/Partners';
 import ContactFrames from './components/ContactFrames/ContactFrames';
 import Testimonials from './components/Testimonials/Testimonials';
+import Login from './components/Login/Login';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // Компонент для основного содержимого приложения
 const AppContent: React.FC = () => {
+  const { logout } = useAuth();
   const { t } = useLanguage();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
@@ -193,12 +198,36 @@ const AppContent: React.FC = () => {
   );
 };
 
-// Основной компонент приложения с провайдером языка
+// Компонент для страницы входа
+const LoginPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
+  // Если пользователь уже аутентифицирован, перенаправляем на главную страницу
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return <Login />;
+};
+
+// Основной компонент приложения с провайдерами
 const App: React.FC = () => {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <AppContent />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </LanguageProvider>
+    </AuthProvider>
   );
 };
 

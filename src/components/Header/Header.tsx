@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import './Header.css';
 
 const Header: React.FC = () => {
+  const { logout } = useAuth();
   const { t } = useLanguage();
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], {
     hour: '2-digit',
