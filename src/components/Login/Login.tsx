@@ -12,7 +12,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Имитация задержки сети
+    // Network delay simulation
     setTimeout(() => {
       login(email, password);
       setIsLoading(false);
@@ -36,7 +36,7 @@ const Login: React.FC = () => {
                 <span className="absolute inset-0 bg-accent-secondary/10 blur-sm rounded-lg"></span>
               </span>
             </h1>
-            <p className="text-text-secondary">Войдите в систему для доступа</p>
+            <p className="text-text-secondary">Sign in to access the system</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -60,14 +60,14 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 bg-dark-primary border border-dark-border/50 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-secondary/50 text-text-primary"
-                placeholder="Введите ваш email"
+                placeholder="Enter your email"
                 required
               />
             </div>
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-text-primary mb-2">
-                Пароль
+                Password
               </label>
               <input
                 id="password"
@@ -75,7 +75,7 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2 bg-dark-primary border border-dark-border/50 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-secondary/50 text-text-primary"
-                placeholder="Введите ваш пароль"
+                placeholder="Enter your password"
                 required
               />
             </div>
@@ -93,10 +93,10 @@ const Login: React.FC = () => {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Вход...</span>
+                    <span>Signing in...</span>
                   </div>
                 ) : (
-                  'Войти'
+                  'Sign in'
                 )}
               </motion.button>
             </div>
