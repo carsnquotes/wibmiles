@@ -43,11 +43,7 @@ const Chat: React.FC = () => {
       localStorage.setItem('chatUserId', storedUserId);
     }
     setUserId(storedUserId);
-    console.log('User ID:', storedUserId);
-    
-    // Отладочный вывод URL вебхука
-    console.log('Webhook URL:', WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
-    console.log('Environment variable:', import.meta.env.VITE_CHAT_WEBHOOK_URL);
+    // Убираем отладочные логи с чувствительной информацией
   }, []);
 
   // Эффект для управления сменой сообщений ожидания
@@ -188,8 +184,7 @@ const Chat: React.FC = () => {
           timestamp: userMessage.timestamp.toISOString()
         };
         
-        console.log('Sending to webhook:', requestData);
-        console.log('Webhook URL:', WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
+        console.log('Sending message to webhook...');
         
         const response = await sendMessageToWebhook(requestData, WEBHOOK_CONFIG.CHAT_WEBHOOK_URL);
         console.log('Webhook response:', response);
